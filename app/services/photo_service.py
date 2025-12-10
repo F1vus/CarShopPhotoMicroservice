@@ -1,10 +1,17 @@
+from fastapi import Depends, HTTPException
+
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+
+from app.db.session import sessionmanager
 from app.models.photos import Photo, PhotoVariant
 from app.utils.image_processing import load_image_bytes, generate_variant, sha256_hash
+from app.models.photos import PhotoVariant
 
 class PhotoService:
-    def __init__(self, db: AsyncSession):
-        self.db = db
+    def __init__(self, db: AsyncSession = Depends(sessionmanager.get_db)):
+        self.db: AsyncSession = db
 
     async def upload_photo(self, car_id: int, file_bytes: bytes, filename: str, content_type: str):
         # compute hash of original
@@ -42,3 +49,12 @@ class PhotoService:
         await self.db.commit()
         await self.db.refresh(photo)
         return photo
+    
+    async def get_photo(self, photo_id: int, size: int) -> PhotoVariant:
+        result = await self.db.execute(
+            select(PhotoVariant).where(PhotoVariant.photo_id == photo_id, PhotoVariant.width == size)
+        )
+        variant = result.scalar()
+        if not variant:
+            raise HTTPException(404)
+        return variant

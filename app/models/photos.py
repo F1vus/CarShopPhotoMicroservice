@@ -11,7 +11,6 @@ class Photo(Base):
     id = Column(BigInteger, primary_key=True, index=True)
     car_id = Column(
         BigInteger,
-        ForeignKey("public.cars.id", ondelete="CASCADE"),
         nullable=False
     )
     uploaded_by_user_id = Column(BigInteger)
@@ -27,10 +26,13 @@ class Photo(Base):
 
 class PhotoVariant(Base):
     __tablename__ = "photo_variants"
-    __table_args__ = {"schema": "photoservice"}
+    __table_args__ = (
+        UniqueConstraint("photo_id", "width"),
+        {"schema": "photoservice"},
+    )
 
     id = Column(BigInteger, primary_key=True)
-    photo_id = Column(BigInteger, ForeignKey("photos.id", ondelete="CASCADE"))
+    photo_id = Column(BigInteger, ForeignKey("photoservice.photos.id", ondelete="CASCADE"))
     width = Column(Integer, nullable=False)
     height = Column(Integer)
     data = Column(LargeBinary)
@@ -39,7 +41,3 @@ class PhotoVariant(Base):
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
 
     photo = relationship("Photo", back_populates="variants")
-
-    __table_args__ = (
-        UniqueConstraint("photo_id", "width"),
-    )
