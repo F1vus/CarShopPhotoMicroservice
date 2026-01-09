@@ -3,8 +3,6 @@ from fastapi import APIRouter, UploadFile, Depends,Response
 from app.services.photo_service import PhotoService
 from app.models.photos import PhotoVariant
 
-from app.config import config
-
 
 router = APIRouter()
 
@@ -25,7 +23,7 @@ async def upload_car_photo(
 
     return {
         "id": photo.id,
-        "url": f"{config.photo_base_url}/photos/{photo.id}/"
+        "url": f"/photos/{photo.id}/"
     }
 
 

@@ -10,7 +10,6 @@ class Config(BaseSettings):
     title: str = "backend-pet"
     description: str = "Something useful"
     environment: str | None = "DEV"
-    photo_base_url: str = "http://localhost:8000"
 
     # db
     postgres_dsn: str = "postgresql+asyncpg://admin:admin123@localhost:5432/carshopdb"
